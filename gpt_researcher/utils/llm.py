@@ -144,4 +144,26 @@ async def construct_subtopics(task: str, data: str, config, subtopics: list = []
 
     except Exception as e:
         print("Exception in parsing subtopics : ", e)
-        return subtopics
+        return subtopicsfrom backend.utils import is_url_used, mark_url_as_used
+
+async def generate_top_10_list(prompt: str, provider: Any, max_attempts: int = 5) -> str:
+    """Generate a "Top 10 List" article suitable for listverse.com.
+
+    Args:
+        prompt (str): The prompt to generate the list.
+        provider (Any): The LLM provider instance.
+        max_attempts (int): Maximum number of attempts to generate a unique list.
+
+    Returns:
+        str: The generated "Top 10 List" article.
+    """
+    for _ in range(max_attempts):
+        response = await provider.get_chat_response([{"role": "user", "content": prompt}])
+        # Extract URLs and check if they are unique
+        urls = extract_urls_from_response(response)
+        if all(not is_url_used(url) for url in urls):
+            # Mark URLs as used
+            for url in urls:
+                mark_url_as_used(url)
+            return response
+    raise ValueError("Failed to generate a unique 'Top 10 List' after multiple attempts.")

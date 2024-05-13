@@ -87,3 +87,38 @@ async def write_md_to_word(text: str, filename: str = "") -> str:
     except Exception as e:
         print(f"Error in converting Markdown to DOCX: {e}")
         return ""
+used_urls = set()  # Set to store used URLs
+
+def is_url_used(url: str) -> bool:
+    """Check if the URL has already been used.
+
+    Args:
+        url (str): The URL to check.
+
+    Returns:
+        bool: True if the URL has been used, False otherwise.
+    """
+    return url in used_urls
+
+def mark_url_as_used(url: str) -> None:
+    """Mark the URL as used.
+
+    Args:
+        url (str): The URL to mark as used.
+    """
+    used_urls.add(url)
+import re
+
+def extract_urls_from_response(response: str) -> List[str]:
+    """Extract URLs from the AI's response.
+
+    Args:
+        response (str): The AI's response text.
+
+    Returns:
+        List[str]: A list of extracted URLs.
+    """
+    # Regex pattern to extract URLs
+    url_pattern = r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+'
+    urls = re.findall(url_pattern, response)
+    return urls
